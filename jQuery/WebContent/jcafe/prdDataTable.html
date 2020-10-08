@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="../js/jquery-3.5.1.min.js"></script>
+<link rel="stylesheet"
+	href="//cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
+<script src="//cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+<script>
+	$(document).ready(function() {
+		let table = $('#example').DataTable({
+			"ajax" : "../GetProductDataTable",
+			columns : [ {
+				"data" : 'itemNo'
+			}, {
+				"data" : 'item'
+			}, {
+				"data" : 'category'
+			}, {
+				"data" : 'price'
+			}, {
+				"data" : 'content'
+			}, {
+				"data" : 'image'
+			} ]
+		});
+
+		$('#example tbody').on('click', 'td', function() {
+			let data = table.row(this).data();//클릭이벤트 row data 가져옴.
+			let elem = $(this);
+			//console.log($(this));
+			if (this.cellIndex == 0) {
+				location.href = "item.jsp?itemNo=" + data.itemNo;
+
+			} else {
+				//데이터베이스 삭제 후 화면에서 지우기.
+				//DAO에 itemNo 기준으로 db삭제하는 서블릿.
+				$.ajax({
+					url : '../DeleteProductServlet',
+					type : 'post',
+					data : {
+						itemNo : data.itemNo
+					//parameter 이름 itemNo 
+					},
+					success : function() {
+						//화면에서 지우기.
+						$(elem).parent().addClass('selected');
+						table.row('.selected').remove().draw(false);
+					},
+					error : function(a, b) {
+
+						console.log(a, b);
+					}
+				});
+
+			}
+		});
+	});
+</script>
+</head>
+
+<body>
+
+	<table id="example" class="display" style="width: 100%">
+		<thead>
+			<tr>
+				<th>itemNo</th>
+				<th>item</th>
+				<th>category</th>
+				<th>price</th>
+				<th>content</th>
+				<th>image</th>
+			</tr>
+
+		</thead>
+		<tfoot>
+			<tr>
+				<th>itemNo</th>
+				<th>item</th>
+				<th>category</th>
+				<th>price</th>
+				<th>content</th>
+				<th>image</th>
+			</tr>
+		</tfoot>
+	</table>
+	<div style="height: 20px;"></div>
+</body>
+</html>
